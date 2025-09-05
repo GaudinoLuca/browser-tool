@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Browser Proxy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+        }
+        .url-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .url-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .go-btn {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .go-btn:hover {
+            background: #2980b9;
+        }
+        .proxy-options {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .proxy-btn {
+            padding: 8px 16px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .proxy-btn:hover {
+            background: #229954;
+        }
+        .content {
+            padding: 20px;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .browser-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .instructions {
+            background: #e8f6f3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .warning {
+            background: #fef9e7;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Web Proxy Browser</h1>
+            <div class="url-bar">
+                <input type="text" id="urlInput" class="url-input" placeholder="Enter URL to browse..." value="">
+                <button class="go-btn" onclick="loadUrl()">Go</button>
+            </div>
+            <div class="proxy-options">
+                <a href="#" class="proxy-btn" onclick="useProxy('allorigins')">AllOrigins Proxy</a>
+                <a href="#" class="proxy-btn" onclick="useProxy('corsproxy')">CORS Proxy</a>
+                <a href="#" class="proxy-btn" onclick="useProxy('thingproxy')">Thing Proxy</a>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="warning">
+                <strong>Note:</strong> This is a basic proxy interface. Some websites may not work perfectly due to CORS restrictions and JavaScript limitations. For best results, try different proxy services.
+            </div>
+            
+            <div class="instructions">
+                <h3>How to use:</h3>
+                <ol>
+                    <li>Enter a URL in the box above</li>
+                    <li>Click one of the proxy service buttons</li>
+                    <li>The website will load in the frame below</li>
+                    <li>If one proxy doesn't work, try another</li>
+                </ol>
+            </div>
+            
+            <div class="iframe-container">
+                <iframe id="browserFrame" class="browser-frame" src="about:blank"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProxy = 'allorigins';
+        
+        const proxies = {
+            allorigins: 'https://api.allorigins.win/raw?url=',
+            corsproxy: 'https://corsproxy.io/?',
+            thingproxy: 'https://thingproxy.freeboard.io/fetch/'
+        };
+        
+        function useProxy(proxyName) {
+            currentProxy = proxyName;
+            const buttons = document.querySelectorAll('.proxy-btn');
+            buttons.forEach(btn => btn.style.background = '#27ae60');
+            event.target.style.background = '#c0392b';
+            
+            if (document.getElementById('urlInput').value) {
+                loadUrl();
+            }
+        }
+        
+        function loadUrl() {
+            const url = document.getElementById('urlInput').value;
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+            
+            let fullUrl = url;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                fullUrl = 'https://' + url;
+            }
+            
+            const proxyUrl = proxies[currentProxy] + encodeURIComponent(fullUrl);
+            const iframe = document.getElementById('browserFrame');
+            
+            try {
+                iframe.src = proxyUrl;
+            } catch (error) {
+                console.error('Error loading URL:', error);
+                alert('Error loading URL. Try a different proxy service.');
+            }
+        }
+        
+        // Handle Enter key in URL input
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadUrl();
+            }
+        });
+        
+        // Set default proxy
+        useProxy('allorigins');
+    </script>
+</body>
+</html>
